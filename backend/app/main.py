@@ -1,12 +1,16 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.routes import health, components, workflows, runs, portal
 from app.db.init_db import init_db
 
-init_db()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
 
-app = FastAPI(title="AI Orchestrator")
+app = FastAPI(title="AI Orchestrator", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
